@@ -5,13 +5,19 @@
 #include "ray.hpp"
 #include "hittable.hpp"
 
-const Pixel getRayColor(const Ray& r, const Hittable& world) {
+const Pixel getRayColor(const Ray& r, int depth, const Hittable& world) {
+    if (depth <= 0) {
+        return Pixel({0, 0, 0});
+    }
     HitRecord rec;
-    if (world.hit(r, Interval(0, infinity), rec)) {
-        return 0.5 * (rec.normal + Pixel({1, 1, 1}));
+    if (world.hit(r, Interval(0.001, infinity), rec)) {
+        Vec3 direction = rec.normal + randomUnitVector();
+        return 0.5 * getRayColor(Ray(rec.p, direction), depth-1, world);
     }
 
-    return Pixel({0.0, 0.0, 0.0});
+    Vec3 unitDirection = toUnit(r.direction());
+    auto a = 0.5*(unitDirection.y + 1.0);
+    return (1.0-a)*Pixel({1.0, 1.0, 1.0}) + a*Pixel({0.5, 0.7, 1.0});
 }
 
 class Viewport {
@@ -25,9 +31,10 @@ public:
     Vec3 pixelDeltaU, pixelDeltaV;
     Vec3 viewportUpperLeft, pixel00Center;
     int samplesPerPixel;
+    int maxDepth;
     double pixelSamplesScale;
 
-    Viewport(double aspectRatio, int imageWidth) : aspectRatio(aspectRatio), imageWidth(imageWidth), samplesPerPixel(10) {
+    Viewport(double aspectRatio, int imageWidth) : aspectRatio(aspectRatio), imageWidth(imageWidth), samplesPerPixel(10), maxDepth(50) {
         imageHeight = int(imageWidth / aspectRatio);
         imageHeight = (imageHeight < 1) ? 1 : imageHeight;
 
@@ -53,7 +60,7 @@ public:
         Pixel pixel({0, 0, 0});
         for (int sample = 0; sample < samplesPerPixel; sample++) {
             Ray r = getRay(i, j);
-            pixel += getRayColor(r, world);
+            pixel += getRayColor(r, maxDepth, world);
         }
         return pixelSamplesScale * pixel;
     }

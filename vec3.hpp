@@ -53,6 +53,12 @@ public:
     double length() const {
         return sqrt(lengthSquared());
     }
+    static Vec3 random() {
+        return Vec3({randomDouble(), randomDouble(), randomDouble()});
+    }
+    static Vec3 random(double min, double max) {
+        return Vec3({randomDouble(min, max), randomDouble(min, max), randomDouble(min, max)});
+    }
 };
 
 typedef Vec3 Pixel;
@@ -97,6 +103,28 @@ Vec3 cross(const Vec3& v1, const Vec3& v2) {
 
 Vec3 toUnit(const Vec3& v) {
     return v / v.length();
+}
+
+Vec3 randomInUnitSphere() {
+    while (true) {
+        auto p = Vec3::random(-1, 1);
+        if (p.lengthSquared() < 1) {
+            return p;
+        }
+    }
+}
+
+Vec3 randomUnitVector() {
+    return toUnit(randomInUnitSphere());
+}
+
+Vec3 randomOnHemisphere(const Vec3& normal) {
+    Vec3 onUnitSphere = randomUnitVector();
+    if (dot(onUnitSphere, normal) > 0.0) {
+        return onUnitSphere;
+    } else {
+        return -onUnitSphere;
+    }
 }
 
 #endif
