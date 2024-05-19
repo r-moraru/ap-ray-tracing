@@ -5,6 +5,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "utils.hpp"
+
 class Vec3 {
 public:
     double x, y, z;
@@ -22,7 +24,7 @@ public:
         z = vals[2];
     };
 
-    Vec3 operator-() { return Vec3({x, y, z}); }
+    Vec3 operator-() const { return Vec3({x, y, z}); }
 
     Vec3& operator+=(const Vec3& v) {
         x += v.x;
@@ -96,54 +98,5 @@ Vec3 cross(const Vec3& v1, const Vec3& v2) {
 Vec3 toUnit(const Vec3& v) {
     return v / v.length();
 }
-
-class Sphere {
-public:
-    double radius;
-    Point center;
-
-    Sphere(double radius, Point center) : radius(radius), center(center) {}
-};
-
-class Ray {
-private:
-    Point o;
-    Vec3 d;
-public:
-    Ray() {}
-    Ray(const Point& origin, const Vec3& direction) : o(origin), d(direction) {}
-
-    const Point& origin() const { return o; }
-    const Vec3& direction() const { return d; }
-
-    const Point at(double t) const {
-        return o + t*d;
-    }
-
-    const Pixel getColor() const {
-        auto t = hits(Sphere(0.5, Point({0, 0, -1})));
-
-        if (t > 0.0) {
-            Vec3 N = toUnit(at(t) - Vec3({0, 0, -1}));
-            return 0.5*Pixel({N.x+1, N.y+1, N.z+1});
-        }
-
-        return Pixel({0.0, 0.0, 0.0});
-    }
-
-    double hits(Sphere s) const {
-        Vec3 oc = s.center - o;
-        auto a = dot(d, d);
-        auto b = -2.0 * dot(d, oc);
-        auto c = dot(oc, oc) - s.radius*s.radius;
-        auto discriminant = b*b - 4*a*c;
-        
-        if (discriminant < 0) {
-            return -1.0;
-        } else {
-            return (-b - sqrt(discriminant)) / (2.0*a);
-        }
-    }
-};
 
 #endif

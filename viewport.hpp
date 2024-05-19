@@ -2,6 +2,17 @@
 #define VIEWPORT_HPP_
 
 #include "vec3.hpp"
+#include "ray.hpp"
+#include "hittable.hpp"
+
+const Pixel getRayColor(const Ray& r, const Hittable& world) {
+    HitRecord rec;
+    if (world.hit(r, Interval(0, infinity), rec)) {
+        return 0.5 * (rec.normal + Pixel({1, 1, 1}));
+    }
+
+    return Pixel({0.0, 0.0, 0.0});
+}
 
 class Viewport {
 public:
@@ -32,6 +43,16 @@ public:
 
         viewportUpperLeft = cameraCenter - Vec3({0, 0, focalLength}) - viewportU/2 - viewportV/2;
         pixel00Center = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
+    }
+
+    const Pixel getPixelColor(int i, int j, Hittable& world) const {
+        Vec3 pixelCenter = pixel00Center +
+                (i * pixelDeltaV) + (j * pixelDeltaU);
+        Vec3 rayDirection = pixelCenter - cameraCenter;
+        Ray r(cameraCenter, rayDirection);
+
+        Pixel pixel = getRayColor(r, world);
+        return pixel;
     }
 };
 
