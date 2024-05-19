@@ -46,8 +46,8 @@ public:
         viewportHeight = 2.0;
         viewportWidth = viewportHeight * (double(imageWidth)/imageHeight);
 
-        focalLength = 2;
-        cameraCenter = Point({0, 0, 0});
+        focalLength = 3;
+        cameraCenter = Point({0, 0.25, 2});
 
         viewportU = Vec3({viewportWidth, 0, 0});
         viewportV = Vec3({0, -viewportHeight, 0});

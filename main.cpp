@@ -16,7 +16,7 @@ using namespace std;
 
 int main() {
     double aspectRatio = 16.0 / 9.0;
-    int imageWidth = 600;
+    int imageWidth = 900;
 
     Viewport viewport(aspectRatio, imageWidth);
 
@@ -27,10 +27,10 @@ int main() {
     auto groundMaterial = make_shared<Lambertian>(Pixel({0.8, 0.8, 0.0}));
     auto centerMaterial = make_shared<Lambertian>(Pixel({0.1, 0.2, 0.5}));
     auto leftMaterial = make_shared<Metal>(Pixel({0.8, 0.8, 0.8}));
-    auto rightMaterial = make_shared<Lambertian>(Pixel({0.8, 0.6, 0.2}));
+    auto rightMaterial = make_shared<Metal>(Pixel({0.8, 0.3, 0.2}));
 
     world.add(make_shared<Sphere>(Point({0.0, -100.5, -1.0}), 100.0, groundMaterial));
-    world.add(make_shared<Sphere>(Point({0.0, 0.0, -1.2}), 0.5, centerMaterial));
+    world.add(make_shared<Sphere>(Point({0.0, 0.0, -1.5}), 0.5, centerMaterial));
     world.add(make_shared<Sphere>(Point({-1.0, 0.0, -1.0}), 0.5, leftMaterial));
     world.add(make_shared<Sphere>(Point({1.0, 0.0, -1.0}), 0.5, rightMaterial));
 
