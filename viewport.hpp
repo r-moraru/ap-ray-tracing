@@ -4,6 +4,7 @@
 #include "vec3.hpp"
 #include "ray.hpp"
 #include "hittable.hpp"
+#include "material.hpp"
 
 const Pixel getRayColor(const Ray& r, int depth, const Hittable& world) {
     if (depth <= 0) {
@@ -11,8 +12,12 @@ const Pixel getRayColor(const Ray& r, int depth, const Hittable& world) {
     }
     HitRecord rec;
     if (world.hit(r, Interval(0.001, infinity), rec)) {
-        Vec3 direction = rec.normal + randomUnitVector();
-        return 0.5 * getRayColor(Ray(rec.p, direction), depth-1, world);
+        Ray scattered;
+        Pixel attenuation;
+        if (rec.mat->scatter(r, rec, attenuation, scattered)) {
+            return attenuation * getRayColor(scattered, depth-1, world);
+        }
+        return Pixel({0, 0, 0});
     }
 
     Vec3 unitDirection = toUnit(r.direction());
@@ -41,7 +46,7 @@ public:
         viewportHeight = 2.0;
         viewportWidth = viewportHeight * (double(imageWidth)/imageHeight);
 
-        focalLength = 1.0;
+        focalLength = 2;
         cameraCenter = Point({0, 0, 0});
 
         viewportU = Vec3({viewportWidth, 0, 0});

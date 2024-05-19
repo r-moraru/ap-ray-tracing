@@ -3,11 +3,13 @@
 
 #include "vec3.hpp"
 #include "interval.hpp"
+#include "material.hpp"
 
 class HitRecord {
 public:
     Point p;
     Vec3 normal;
+    shared_ptr<Material> mat;
     double t;
     bool frontFace;
 

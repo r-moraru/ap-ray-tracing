@@ -59,6 +59,10 @@ public:
     static Vec3 random(double min, double max) {
         return Vec3({randomDouble(min, max), randomDouble(min, max), randomDouble(min, max)});
     }
+    bool nearZero() const {
+        auto s = 1e-8;
+        return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s);
+    }
 };
 
 typedef Vec3 Pixel;
@@ -103,6 +107,10 @@ Vec3 cross(const Vec3& v1, const Vec3& v2) {
 
 Vec3 toUnit(const Vec3& v) {
     return v / v.length();
+}
+
+Vec3 reflect(const Vec3& v, const Vec3& n) {
+    return v - 2 * dot(v, n) * n;
 }
 
 Vec3 randomInUnitSphere() {
