@@ -6,8 +6,7 @@
 #include <vector>
 
 #include "vec3.hpp"
-
-#define float_color_to_int(color) (int(255.9*color))
+#include "interval.hpp"
 
 void toPpmFile(std::vector<std::vector<Pixel>> image, std::string file_path) {
     std::ofstream fout(file_path);
@@ -19,8 +18,11 @@ void toPpmFile(std::vector<std::vector<Pixel>> image, std::string file_path) {
 
     for (auto row : image) {
         for (auto pixel : row) {
-            fout << float_color_to_int(pixel.x) << " " << float_color_to_int(pixel.y)
-                    << " " << float_color_to_int(pixel.z) << "\n";
+            static const Interval intensity(0.000, 0.999);
+            int rbyte = int(256 * intensity.clamp(pixel.x));
+            int gbyte = int(256 * intensity.clamp(pixel.y));
+            int bbyte = int(256 * intensity.clamp(pixel.z));
+            fout << rbyte << " " << gbyte << " " << bbyte << "\n";
         }
     }
 }

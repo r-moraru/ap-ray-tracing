@@ -24,8 +24,10 @@ public:
     Vec3 viewportU, viewportV;
     Vec3 pixelDeltaU, pixelDeltaV;
     Vec3 viewportUpperLeft, pixel00Center;
+    int samplesPerPixel;
+    double pixelSamplesScale;
 
-    Viewport(double aspectRatio, int imageWidth) : aspectRatio(aspectRatio), imageWidth(imageWidth) {
+    Viewport(double aspectRatio, int imageWidth) : aspectRatio(aspectRatio), imageWidth(imageWidth), samplesPerPixel(10) {
         imageHeight = int(imageWidth / aspectRatio);
         imageHeight = (imageHeight < 1) ? 1 : imageHeight;
 
@@ -43,16 +45,32 @@ public:
 
         viewportUpperLeft = cameraCenter - Vec3({0, 0, focalLength}) - viewportU/2 - viewportV/2;
         pixel00Center = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
+
+        pixelSamplesScale = 1.0 / samplesPerPixel;
     }
 
     const Pixel getPixelColor(int i, int j, Hittable& world) const {
-        Vec3 pixelCenter = pixel00Center +
-                (i * pixelDeltaV) + (j * pixelDeltaU);
-        Vec3 rayDirection = pixelCenter - cameraCenter;
-        Ray r(cameraCenter, rayDirection);
+        Pixel pixel({0, 0, 0});
+        for (int sample = 0; sample < samplesPerPixel; sample++) {
+            Ray r = getRay(i, j);
+            pixel += getRayColor(r, world);
+        }
+        return pixelSamplesScale * pixel;
+    }
 
-        Pixel pixel = getRayColor(r, world);
-        return pixel;
+    Vec3 sampleSquare() const {
+        return Vec3({randomDouble() - 0.5, randomDouble() - 0.5, 0});
+    }
+
+    Ray getRay(int j, int i) const {
+        auto offset = sampleSquare();
+        auto pixelSample = pixel00Center + ((i + offset.x) * pixelDeltaU) +
+                                           ((j + offset.y) * pixelDeltaV);
+
+        auto rayOrigin = cameraCenter;
+        auto rayDirection = pixelSample - rayOrigin;
+
+        return Ray(rayOrigin, rayDirection);
     }
 };
 

@@ -13,7 +13,7 @@ using namespace std;
 
 int main() {
     double aspectRatio = 19.0 / 16.0;
-    int imageWidth = 600;
+    int imageWidth = 400;
 
     Viewport viewport(aspectRatio, imageWidth);
 
