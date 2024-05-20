@@ -14,7 +14,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int imageWidth = 400, imageHeight = 300;
+  int imageWidth = 1280, imageHeight = 720;
 
   Viewport viewport(imageHeight, imageWidth);
 
@@ -36,7 +36,10 @@ int main(int argc, char **argv) {
 
   MPI_Init(&argc, &argv);
 
-  // renderLinear(viewport, world, image);
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+//   renderLinear(viewport, world, image);
 
   Strategy strategy = HORIZONTAL;
   bool loadBalanced = true;
