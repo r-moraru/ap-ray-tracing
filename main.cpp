@@ -18,7 +18,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int imageWidth = 400, imageHeight = 300;
+  int imageWidth = 1280, imageHeight = 720;
 
   Viewport viewport(imageHeight, imageWidth);
 

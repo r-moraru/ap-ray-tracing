@@ -58,28 +58,36 @@ inline void renderGrid(Viewport &viewport, HittableList &world,
   
   int currentPixel = 0;
   for (int i = rowOffset; i < imageHeight; i += numWorkers) {
-    // std::cout << i << std::endl;
     for (int j = 0; j < imageWidth; j++, currentPixel += 3) {
       Pixel p = viewport.getPixelColor(i, j, world);
       localPixels[currentPixel] = p.x;
       localPixels[currentPixel+1] = p.y;
       localPixels[currentPixel+2] = p.z;
     }
-    // std::cout << "current pixel: " << currentPixel << std::endl;
   }
 
   int numBytesRead = MPI_Gather((void *)localPixels, localPixelsSize, MPI_DOUBLE, (void *)img, localPixelsSize, MPI_DOUBLE, 0, cartComm);
 
+  std::vector<std::vector<Pixel>> tempImage(imageHeight, std::vector<Pixel>(imageWidth));
   if (rank == 0) {
     currentPixel = 0;
     for (int i = 0; i < imageHeight; i++) {
       for (int j = 0; j < imageWidth; j++, currentPixel += 3) {
-        image[i][j] = Pixel({
+        tempImage[i][j] = Pixel({
           img[currentPixel],
           img[currentPixel+1],
           img[currentPixel+2]
         });
-        // std::cout << image[i][j] << std::endl;
+      }
+    }
+    int currentRow = 0;
+    for (int i = 0; i < size; i++) {
+      int numProcessedRows = imageHeight/numWorkers;
+      if (imageHeight%numWorkers > i) {
+        numProcessedRows += 1;
+      }
+      for (int j = 0; j < numProcessedRows; j++, currentRow++) {
+        image[i+j*size] = tempImage[currentRow];
       }
     }
   }
