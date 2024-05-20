@@ -11,8 +11,9 @@
 #include "viewport.hpp"
 #include <format>
 #include <mpi.h>
+#include <string>
 #include <vector>
-enum Strategy { HORIZONTAL, VERTICAL, GRID };
+enum Strategy { HORIZONTAL, GRID };
 
 inline void renderGrid(Viewport &viewport, HittableList &world,
                        std::vector<std::vector<Pixel>> &image,
@@ -32,33 +33,21 @@ inline void renderGrid(Viewport &viewport, HittableList &world,
 
   int coords[2];
   MPI_Cart_coords(cartComm, rank, 2, coords);
-  int blockHeight = imageHeight / dims[0];
-  int blockWidth = imageWidth / dims[1];
 
-  int startY = coords[0] * blockHeight;
-  int startX = coords[1] * blockWidth;
+  int rowsPerProcess = imageHeight / size;
+  int remainder = imageHeight % size;
+  int startRow = rank * rowsPerProcess;
+  int numRows = rowsPerProcess + (rank < remainder ? 1 : 0);
+  int endRow = startRow + numRows;
 
-  printf("Rank:%d Size:%d, Coords(%d,%d), Dims(%d,%d)\n", rank, size, coords[0],
-         coords[1], dims[0], dims[1]);
+  std::vector<std::vector<Pixel>> localImage(endRow - startRow,
+                                             std::vector<Pixel>(imageWidth));
 
-  std::vector<std::vector<Pixel>> localImage(
-      blockHeight, std::vector<Pixel>(blockWidth, Pixel({0, 0, 0})));
-
-  int nParts = loadBalanced ? size * 4 : size;
-  int partHeight = imageHeight / nParts;
-  int partWidth = imageWidth / nParts;
-
-  std::vector<std::vector<Pixel>> globalImage(imageHeight,
-                                              std::vector<Pixel>(imageWidth));
-
-  if (rank == 0) {
-    for (int i = 0; i < imageHeight; ++i) {
-      for (int j = 0; j < imageWidth; ++j) {
-        image[i][j] = globalImage[i][j];
-      }
+  for (int i = startRow; i < endRow; i++)
+    for (int j = 0; j < viewport.imageWidth; j++) {
+      localImage[i - startRow][j] = viewport.getPixelColor(i, j, world);
     }
-  }
 
+  toPpmFile(localImage, std::to_string(rank) + "test.ppm");
   MPI_Comm_free(&cartComm);
 }
-

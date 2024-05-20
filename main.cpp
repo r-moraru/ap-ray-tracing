@@ -47,12 +47,6 @@ int main(int argc, char **argv) {
   bool loadBalanced = false;
   renderGrid(viewport, world, image, strategy, loadBalanced);
 
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  if (rank == 0) {
-    toPpmFile(image, "test.ppm");
-  }
-
   MPI_Finalize();
   return 0;
 }
