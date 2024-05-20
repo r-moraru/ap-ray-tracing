@@ -9,16 +9,18 @@
 #include "utils.hpp"
 #include "vec3.hpp"
 #include "viewport.hpp"
-#include <format>
 #include <mpi.h>
 #include <vector>
 enum Strategy { HORIZONTAL, VERTICAL, GRID };
+
+typedef struct {
+  double r, g, b;
+} Color;
 
 inline void renderGrid(Viewport &viewport, HittableList &world,
                        std::vector<std::vector<Pixel>> &image,
                        Strategy strategy, bool loadBalanced) {
   int rank, size;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   int imageHeight = viewport.imageHeight;
   int imageWidth = viewport.imageWidth;
@@ -29,32 +31,55 @@ inline void renderGrid(Viewport &viewport, HittableList &world,
   int periods[2] = {0, 0};
   MPI_Comm cartComm;
   MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cartComm);
+  MPI_Comm_rank(cartComm, &rank);
 
-  int coords[2];
-  MPI_Cart_coords(cartComm, rank, 2, coords);
-  int blockHeight = imageHeight / dims[0];
-  int blockWidth = imageWidth / dims[1];
 
-  int startY = coords[0] * blockHeight;
-  int startX = coords[1] * blockWidth;
+  int numWorkers = size;
+  int rowOffset = rank;
+  int numProcessedRows = imageHeight/numWorkers;
+  if (imageHeight%numWorkers > rowOffset) {
+    numProcessedRows += 1;
+  }
 
-  printf("Rank:%d Size:%d, Coords(%d,%d), Dims(%d,%d)\n", rank, size, coords[0],
-         coords[1], dims[0], dims[1]);
+  int localPixelsSize = 3 * imageWidth * numProcessedRows;
+  int imgSize = 3 * imageWidth * imageHeight;
 
-  std::vector<std::vector<Pixel>> localImage(
-      blockHeight, std::vector<Pixel>(blockWidth, Pixel({0, 0, 0})));
+  double *localPixels = (double *)malloc(sizeof(double) * localPixelsSize);
+  double *img;
+  if (rank == 0) {
+    img = (double *)malloc(sizeof(double) * imgSize);
+  }
 
-  int nParts = loadBalanced ? size * 4 : size;
-  int partHeight = imageHeight / nParts;
-  int partWidth = imageWidth / nParts;
+  std::cout << "num workers: " << size << std::endl;
+  std::cout << "row offset: " << rank << std::endl;
+  std::cout << "num processed rows: " << numProcessedRows << std::endl;
+  std::cout << "local pixels size: " << imageWidth * numProcessedRows << std::endl;
+  std::cout << "total image size: " << imageHeight*imageWidth << std::endl;
+  
+  int currentPixel = 0;
+  for (int i = rowOffset; i < imageHeight; i += numWorkers) {
+    // std::cout << i << std::endl;
+    for (int j = 0; j < imageWidth; j++, currentPixel += 3) {
+      Pixel p = viewport.getPixelColor(i, j, world);
+      localPixels[currentPixel] = p.x;
+      localPixels[currentPixel+1] = p.y;
+      localPixels[currentPixel+2] = p.z;
+    }
+    // std::cout << "current pixel: " << currentPixel << std::endl;
+  }
 
-  std::vector<std::vector<Pixel>> globalImage(imageHeight,
-                                              std::vector<Pixel>(imageWidth));
+  int numBytesRead = MPI_Gather((void *)localPixels, localPixelsSize, MPI_DOUBLE, (void *)img, localPixelsSize, MPI_DOUBLE, 0, cartComm);
 
   if (rank == 0) {
-    for (int i = 0; i < imageHeight; ++i) {
-      for (int j = 0; j < imageWidth; ++j) {
-        image[i][j] = globalImage[i][j];
+    currentPixel = 0;
+    for (int i = 0; i < imageHeight; i++) {
+      for (int j = 0; j < imageWidth; j++, currentPixel += 3) {
+        image[i][j] = Pixel({
+          img[currentPixel],
+          img[currentPixel+1],
+          img[currentPixel+2]
+        });
+        // std::cout << image[i][j] << std::endl;
       }
     }
   }

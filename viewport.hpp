@@ -27,7 +27,6 @@ const Pixel getRayColor(const Ray& r, int depth, const Hittable& world) {
 
 class Viewport {
 public:
-    double aspectRatio;
     int imageWidth, imageHeight;
     double viewportHeight, viewportWidth;
     double focalLength;
@@ -39,10 +38,7 @@ public:
     int maxDepth;
     double pixelSamplesScale;
 
-    Viewport(double aspectRatio, int imageWidth) : aspectRatio(aspectRatio), imageWidth(imageWidth), samplesPerPixel(10), maxDepth(50) {
-        imageHeight = int(imageWidth / aspectRatio);
-        imageHeight = (imageHeight < 1) ? 1 : imageHeight;
-
+    Viewport(int imageHeight, int imageWidth) : imageHeight(imageHeight), imageWidth(imageWidth), samplesPerPixel(10), maxDepth(50) {
         viewportHeight = 2.0;
         viewportWidth = viewportHeight * (double(imageWidth)/imageHeight);
 

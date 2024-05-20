@@ -18,10 +18,9 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  double aspectRatio = 16.0 / 9.0;
-  int imageWidth = 900;
+  int imageWidth = 400, imageHeight = 300;
 
-  Viewport viewport(aspectRatio, imageWidth);
+  Viewport viewport(imageHeight, imageWidth);
 
   vector<vector<Pixel>> image(viewport.imageHeight,
                               vector<Pixel>(viewport.imageWidth));
@@ -41,14 +40,16 @@ int main(int argc, char **argv) {
 
   MPI_Init(&argc, &argv);
 
-  // renderLinear(viewport, world, image);
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+//   renderLinear(viewport, world, image);
 
   Strategy strategy = HORIZONTAL;
   bool loadBalanced = false;
   renderGrid(viewport, world, image, strategy, loadBalanced);
 
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  
   if (rank == 0) {
     toPpmFile(image, "test.ppm");
   }

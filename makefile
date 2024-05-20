@@ -16,7 +16,7 @@ render:
 	$(MPICXX) $(SRCS) -o $(EXEC)
 
 run:
-	@mpirun --oversubscribe -np 4 ./$(EXEC)
+	@mpirun --oversubscribe -np 2 ./$(EXEC)
 
 convert:
 	@convert $(PPMFILE) $(PNGFILE)
