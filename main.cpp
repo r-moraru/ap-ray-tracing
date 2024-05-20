@@ -18,10 +18,9 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  double aspectRatio = 16.0 / 9.0;
-  int imageWidth = 900;
+  int imageWidth = 400, imageHeight = 300;
 
-  Viewport viewport(aspectRatio, imageWidth);
+  Viewport viewport(imageHeight, imageWidth);
 
   vector<vector<Pixel>> image(viewport.imageHeight,
                               vector<Pixel>(viewport.imageWidth));
