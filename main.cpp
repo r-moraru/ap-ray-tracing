@@ -1,12 +1,8 @@
 #include <vector>
 
-#include "hittable.hpp"
 #include "hittable_list.hpp"
-#include "image_renderer.hpp"
 #include "lambertian.hpp"
-#include "material.hpp"
 #include "metal.hpp"
-#include "ray.hpp"
 #include "sphere.hpp"
 #include "strat_grid.hpp"
 #include "strat_linear.hpp"
@@ -43,7 +39,7 @@ int main(int argc, char **argv) {
   // renderLinear(viewport, world, image);
 
   Strategy strategy = HORIZONTAL;
-  bool loadBalanced = false;
+  bool loadBalanced = true;
   renderGrid(viewport, world, image, strategy, loadBalanced);
 
   MPI_Finalize();
