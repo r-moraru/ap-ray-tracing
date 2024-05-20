@@ -17,7 +17,7 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char **argv) {
   double aspectRatio = 16.0 / 9.0;
   int imageWidth = 900;
 
@@ -39,12 +39,19 @@ int main() {
   world.add(make_shared<Sphere>(Point({-1.0, 0.0, -1.0}), 0.5, leftMaterial));
   world.add(make_shared<Sphere>(Point({1.0, 0.0, -1.0}), 0.5, rightMaterial));
 
-  MPI_Init(nullptr, nullptr);
+  MPI_Init(&argc, &argv);
 
-  /* renderGrid(viewport, world, image); */
-  renderLinear(viewport, world, image);
+  // renderLinear(viewport, world, image);
 
-  toPpmFile(image, "test.ppm");
+  Strategy strategy = HORIZONTAL;
+  bool loadBalanced = false;
+  renderGrid(viewport, world, image, strategy, loadBalanced);
+
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  if (rank == 0) {
+    toPpmFile(image, "test.ppm");
+  }
 
   MPI_Finalize();
   return 0;
