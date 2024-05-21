@@ -6,15 +6,13 @@
 #include "lambertian.hpp"
 #include "metal.hpp"
 #include "sphere.hpp"
-#include "strat_grid.hpp"
 #include "strat_linear.hpp"
+#include "strat_parallel.hpp"
 #include "utils.hpp"
 #include "vec3.hpp"
 #include "viewport.hpp"
 
 using namespace std;
-
-enum Topology { GRID, HYPERCUBE, LINEAR };
 
 int main(int argc, char **argv) {
   int imageWidth = 1920, imageHeight = 1080;
@@ -66,12 +64,7 @@ int main(int argc, char **argv) {
   if (topology == LINEAR) {
     renderLinear(viewport, world, image);
   } else {
-    if (topology == GRID) {
-      renderGrid(viewport, world, image, loadBalanced);
-    } else if (topology == HYPERCUBE) {
-      // renderHypercube(viewport, world, image, loadBalanced);
-      printf("n=avem asa ceva inca");
-    }
+    renderGrid(viewport, world, image, topology, loadBalanced);
   }
 
   int rank;

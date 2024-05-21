@@ -5,9 +5,27 @@
 #include <mpi.h>
 #include <vector>
 
-typedef struct {
-  double r, g, b;
-} Color;
+enum Topology { GRID, HYPERCUBE, LINEAR };
+
+inline void hypercube_initializeMPI(int &rank, int &size, MPI_Comm &cubeComm) {
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  int dims = std::log2(size);
+  if (1 << dims != size) {
+    if (rank == 0) {
+      printf("Number of processors must be a power of 2 for a hypercube "
+             "topology.\n");
+    }
+    MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+  }
+
+  MPI_Comm_split(MPI_COMM_WORLD, rank < size ? 0 : MPI_UNDEFINED, rank,
+                 &cubeComm);
+  if (cubeComm != MPI_COMM_NULL) {
+    MPI_Comm_rank(cubeComm, &rank);
+  }
+}
 
 inline void initializeMPI(int &rank, int &size, MPI_Comm &cartComm) {
   MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -70,11 +88,15 @@ inline void constructImage(int imageHeight, int imageWidth, double *img,
 
 inline void renderGrid(Viewport &viewport, HittableList &world,
                        std::vector<std::vector<Pixel>> &image,
-                       bool loadBalanced) {
+                       Topology topology, bool loadBalanced) {
   int rank, size;
   MPI_Comm cartComm;
-  initializeMPI(rank, size, cartComm);
 
+  if (topology == HYPERCUBE) {
+    hypercube_initializeMPI(rank, size, cartComm);
+  } else {
+    initializeMPI(rank, size, cartComm);
+  }
   int imageHeight = viewport.imageHeight;
   int imageWidth = viewport.imageWidth;
 

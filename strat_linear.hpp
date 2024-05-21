@@ -19,9 +19,11 @@ inline void renderLinear(Viewport &viewport, HittableList &world,
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  for (int i = 0; i < viewport.imageHeight; i++) {
-    for (int j = 0; j < viewport.imageWidth; j++) {
-      image[i][j] = viewport.getPixelColor(i, j, world);
+  if (rank == 0) {
+    for (int i = 0; i < viewport.imageHeight; i++) {
+      for (int j = 0; j < viewport.imageWidth; j++) {
+        image[i][j] = viewport.getPixelColor(i, j, world);
+      }
     }
   }
 }

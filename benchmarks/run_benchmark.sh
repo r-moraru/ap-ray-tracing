@@ -6,8 +6,8 @@ output_file=./benchmarks/benchmark_results.csv
 
 echo "num_processors,run,topology,load_balanced,time" >$output_file
 
-processors=(1 2 4 6 8)
-configurations=("grid" "grid_nlb" "linear")
+processors=(1 2 4 6 8 16)
+configurations=("grid" "grid_nlb" "hypercube" "hypercube_nlb" "linear")
 
 for np in "${processors[@]}"; do
 	for config in "${configurations[@]}"; do
