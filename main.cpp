@@ -1,3 +1,5 @@
+#include <mpi.h>
+#include <string>
 #include <vector>
 
 #include "hittable_list.hpp"
@@ -9,12 +11,13 @@
 #include "utils.hpp"
 #include "vec3.hpp"
 #include "viewport.hpp"
-#include <mpi.h>
 
 using namespace std;
 
+enum Topology { GRID, HYPERCUBE, LINEAR };
+
 int main(int argc, char **argv) {
-  int imageWidth = 1280, imageHeight = 720;
+  int imageWidth = 1920, imageHeight = 1080;
 
   Viewport viewport(imageHeight, imageWidth);
 
@@ -36,14 +39,54 @@ int main(int argc, char **argv) {
 
   MPI_Init(&argc, &argv);
 
+  double start_time = MPI_Wtime();
+
+  Topology topology = GRID;
+  bool loadBalanced = true;
+
+  if (argc > 1) {
+    string arg = argv[1];
+    if (arg == "grid") {
+      topology = GRID;
+      loadBalanced = true;
+    } else if (arg == "grid_nlb") {
+      topology = GRID;
+      loadBalanced = false;
+    } else if (arg == "hypercube") {
+      topology = HYPERCUBE;
+      loadBalanced = true;
+    } else if (arg == "hypercube_nlb") {
+      topology = HYPERCUBE;
+      loadBalanced = false;
+    } else if (arg == "linear") {
+      topology = LINEAR;
+    }
+  }
+
+  if (topology == LINEAR) {
+    renderLinear(viewport, world, image);
+  } else {
+    if (topology == GRID) {
+      renderGrid(viewport, world, image, loadBalanced);
+    } else if (topology == HYPERCUBE) {
+      // renderHypercube(viewport, world, image, loadBalanced);
+      printf("n=avem asa ceva inca");
+    }
+  }
+
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-//   renderLinear(viewport, world, image);
+  if (rank == 0) {
+    if (!(argc > 2)) {
+      toPpmFile(image, "test.ppm");
+    }
+  }
 
-  Strategy strategy = HORIZONTAL;
-  bool loadBalanced = true;
-  renderGrid(viewport, world, image, strategy, loadBalanced);
+  double end_time = MPI_Wtime();
+  if (rank == 0) {
+    printf("Elapsed time: %f seconds\n", end_time - start_time);
+  }
 
   MPI_Finalize();
   return 0;

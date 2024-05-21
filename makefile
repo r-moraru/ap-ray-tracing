@@ -13,10 +13,10 @@ PNGFILE = test.png
 all: render run convert
 
 render:
-	$(MPICXX) $(SRCS) -o $(EXEC)
+	$(MPICXX) -O3 $(SRCS) -o $(EXEC)
 
 run:
-	@mpirun --oversubscribe -np 2 ./$(EXEC)
+	@mpirun --oversubscribe -np 1 ./$(EXEC)
 
 convert:
 	@convert $(PPMFILE) $(PNGFILE)

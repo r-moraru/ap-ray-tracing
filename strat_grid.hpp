@@ -5,8 +5,6 @@
 #include <mpi.h>
 #include <vector>
 
-enum Strategy { HORIZONTAL, GRID };
-
 typedef struct {
   double r, g, b;
 } Color;
@@ -72,7 +70,7 @@ inline void constructImage(int imageHeight, int imageWidth, double *img,
 
 inline void renderGrid(Viewport &viewport, HittableList &world,
                        std::vector<std::vector<Pixel>> &image,
-                       Strategy strategy, bool loadBalanced) {
+                       bool loadBalanced) {
   int rank, size;
   MPI_Comm cartComm;
   initializeMPI(rank, size, cartComm);
@@ -111,7 +109,6 @@ inline void renderGrid(Viewport &viewport, HittableList &world,
 
   if (rank == 0) {
     constructImage(imageHeight, imageWidth, img, image, loadBalanced, size);
-    toPpmFile(image, "test.ppm");
   }
 
   MPI_Comm_free(&cartComm);
@@ -120,4 +117,3 @@ inline void renderGrid(Viewport &viewport, HittableList &world,
     free(img);
   }
 }
-

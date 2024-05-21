@@ -24,8 +24,4 @@ inline void renderLinear(Viewport &viewport, HittableList &world,
       image[i][j] = viewport.getPixelColor(i, j, world);
     }
   }
-
-  if (rank == 0) {
-    toPpmFile(image, "test.ppm");
-  }
 }
