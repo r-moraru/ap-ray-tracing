@@ -6,8 +6,8 @@ output_file=./benchmarks/benchmark_results.csv
 
 echo "num_processors,run,topology,load_balanced,time" >$output_file
 
-processors=(1 2 4 6 8 16)
-configurations=("grid" "grid_nlb" "hypercube" "hypercube_nlb" "linear")
+processors=(1 2 4 8 16 18 32)
+configurations=("grid" "grid_nlb" "ring" "ring_nlb" "linear")
 
 for np in "${processors[@]}"; do
 	for config in "${configurations[@]}"; do
@@ -20,11 +20,11 @@ for np in "${processors[@]}"; do
 			if [ "$config" == "grid_nlb" ]; then
 				topology="grid"
 				load_balanced="false"
-			elif [ "$config" == "hypercube" ]; then
-				topology="hypercube"
+			elif [ "$config" == "ring" ]; then
+				topology="ring"
 				load_balanced="true"
-			elif [ "$config" == "hypercube_nlb" ]; then
-				topology="hypercube"
+			elif [ "$config" == "ring_nlb" ]; then
+				topology="ring"
 				load_balanced="false"
 			elif [ "$config" == "linear" ]; then
 				topology="linear"

@@ -11,11 +11,12 @@
 #include "utils.hpp"
 #include "vec3.hpp"
 #include "viewport.hpp"
+#include "image_renderer.hpp"
 
 using namespace std;
 
 int main(int argc, char **argv) {
-  int imageWidth = 1920, imageHeight = 1080;
+  int imageWidth = 1920, imageHeight = 1152;
 
   Viewport viewport(imageHeight, imageWidth);
 
@@ -50,11 +51,11 @@ int main(int argc, char **argv) {
     } else if (arg == "grid_nlb") {
       topology = GRID;
       loadBalanced = false;
-    } else if (arg == "hypercube") {
-      topology = HYPERCUBE;
+    } else if (arg == "ring") {
+      topology = RING;
       loadBalanced = true;
-    } else if (arg == "hypercube_nlb") {
-      topology = HYPERCUBE;
+    } else if (arg == "ring_nlb") {
+      topology = RING;
       loadBalanced = false;
     } else if (arg == "linear") {
       topology = LINEAR;

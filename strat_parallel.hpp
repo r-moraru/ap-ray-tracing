@@ -1,40 +1,29 @@
 #include "hittable_list.hpp"
-#include "image_renderer.hpp"
 #include "vec3.hpp"
 #include "viewport.hpp"
 #include <mpi.h>
 #include <vector>
 
-enum Topology { GRID, HYPERCUBE, LINEAR };
+enum Topology { GRID, RING, LINEAR };
 
-inline void hypercube_initializeMPI(int &rank, int &size, MPI_Comm &cubeComm) {
+inline void ringInitializeMPI(int &rank, int &size, MPI_Comm &ringComm) {
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  int dims[1] = {0};
+  MPI_Dims_create(size, 1, dims);
 
-  int dims = std::log2(size);
-  if (1 << dims != size) {
-    if (rank == 0) {
-      printf("Number of processors must be a power of 2 for a hypercube "
-             "topology.\n");
-    }
-    MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
-  }
-
-  MPI_Comm_split(MPI_COMM_WORLD, rank < size ? 0 : MPI_UNDEFINED, rank,
-                 &cubeComm);
-  if (cubeComm != MPI_COMM_NULL) {
-    MPI_Comm_rank(cubeComm, &rank);
-  }
+  int periods[1] = {1};
+  MPI_Cart_create(MPI_COMM_WORLD, 1, dims, periods, 1, &ringComm);
+  MPI_Comm_rank(ringComm, &rank);
 }
 
-inline void initializeMPI(int &rank, int &size, MPI_Comm &cartComm) {
+inline void gridInitializeMPI(int &rank, int &size, MPI_Comm &gridComm) {
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   int dims[2] = {0, 0};
   MPI_Dims_create(size, 2, dims);
 
   int periods[2] = {0, 0};
-  MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cartComm);
-  MPI_Comm_rank(cartComm, &rank);
+  MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 1, &gridComm);
+  MPI_Comm_rank(gridComm, &rank);
 }
 
 inline void fillLocalPixels(Viewport &viewport, HittableList &world,
@@ -92,11 +81,12 @@ inline void renderGrid(Viewport &viewport, HittableList &world,
   int rank, size;
   MPI_Comm cartComm;
 
-  if (topology == HYPERCUBE) {
-    hypercube_initializeMPI(rank, size, cartComm);
+  if (topology == RING) {
+    ringInitializeMPI(rank, size, cartComm);
   } else {
-    initializeMPI(rank, size, cartComm);
+    gridInitializeMPI(rank, size, cartComm);
   }
+
   int imageHeight = viewport.imageHeight;
   int imageWidth = viewport.imageWidth;
 
