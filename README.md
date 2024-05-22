@@ -1,5 +1,8 @@
-## TODO
+# OpenMPI implementation of Parallel Ray Tracing
 
-1. Check that hypercube implementation works fine.
-2. Add option for total exchange
-3. If there are problems with hypercube impl., use ring.
+This is an implementation of a simple ray tracer using the Message Passing Interface for parallelisation.
+
+To run simply ``make``
+
+To run benchmarks ``./benchmarks/run_benchmark.sh``
+

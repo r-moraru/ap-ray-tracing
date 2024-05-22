@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-data = pd.read_csv('./benchmark_results.csv')
+data = pd.read_csv('./benchmarks/benchmark_results.csv')
 
 mean_times = data.groupby(['num_processors', 'topology', 'load_balanced'])['time'].mean().reset_index()
 
@@ -22,7 +22,7 @@ plt.ylabel('Time (seconds)')
 plt.legend(title='Configuration')
 plt.grid(True)
 
-plt.savefig('result.png')
+plt.savefig('./benchmarks/result.png')
 
 plt.show()
 

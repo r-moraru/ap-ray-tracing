@@ -1,17 +1,16 @@
 #include <mpi.h>
 #include <string>
-#include <vector>
 
-#include "hittable_list.hpp"
-#include "lambertian.hpp"
-#include "metal.hpp"
-#include "sphere.hpp"
-#include "strat_linear.hpp"
-#include "strat_parallel.hpp"
-#include "utils.hpp"
-#include "vec3.hpp"
-#include "viewport.hpp"
-#include "image_renderer.hpp"
+#include "include/hittable_list.hpp"
+#include "include/image_renderer.hpp"
+#include "include/lambertian.hpp"
+#include "include/metal.hpp"
+#include "include/sphere.hpp"
+#include "include/strat_linear.hpp"
+#include "include/strat_parallel.hpp"
+#include "include/utils.hpp"
+#include "include/vec3.hpp"
+#include "include/viewport.hpp"
 
 using namespace std;
 

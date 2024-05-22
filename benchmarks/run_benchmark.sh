@@ -4,6 +4,9 @@ executable=./render.out
 num_runs=5
 output_file=./benchmarks/benchmark_results.csv
 
+## ensure latest version of executable
+make
+
 echo "num_processors,run,topology,load_balanced,time" >$output_file
 
 processors=(1 2 4 8 16 18 32)
@@ -36,3 +39,5 @@ for np in "${processors[@]}"; do
 done
 
 echo "Benchmarking completed. Results saved to $output_file."
+
+python ./benchmarks/graphing.py
