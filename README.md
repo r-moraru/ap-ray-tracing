@@ -6,3 +6,4 @@ To run simply ``make``
 
 To run benchmarks ``./benchmarks/run_benchmark.sh``
 
+![Benchmark Results](./benchmarks/result.png)
