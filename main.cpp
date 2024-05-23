@@ -35,10 +35,6 @@ int main(int argc, char **argv) {
   world.add(make_shared<Sphere>(Point({-1.0, 0.0, -1.0}), 0.5, leftMaterial));
   world.add(make_shared<Sphere>(Point({1.0, 0.0, -1.0}), 0.5, rightMaterial));
 
-  MPI_Init(&argc, &argv);
-
-  double start_time = MPI_Wtime();
-
   Topology topology = GRID;
   bool loadBalanced = true;
 
@@ -61,26 +57,26 @@ int main(int argc, char **argv) {
     }
   }
 
+  int rank = 0;
+  double start_time = MPI_Wtime();
   if (topology == LINEAR) {
     renderLinear(viewport, world, image);
   } else {
+    MPI_Init(&argc, &argv);
     renderGrid(viewport, world, image, topology, loadBalanced);
-  }
 
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  if (rank == 0) {
-    if (!(argc > 2)) {
-      toPpmFile(image, "test.ppm");
-    }
+    MPI_Finalize();
   }
 
   double end_time = MPI_Wtime();
   if (rank == 0) {
     printf("Elapsed time: %f seconds\n", end_time - start_time);
-  }
 
-  MPI_Finalize();
+    if (!(argc > 2)) {
+      toPpmFile(image, "test.ppm");
+    }
+  }
   return 0;
 }
