@@ -1,7 +1,7 @@
 #!/bin/bash
 
 executable=./render.out
-num_runs=5
+num_runs=10
 output_file=./benchmarks/benchmark_results.csv
 
 ## ensure latest version of executable
@@ -9,8 +9,8 @@ make
 
 echo "num_processors,run,topology,load_balanced,time" >$output_file
 
-processors=(1 2 4 8 16 32 64 128 256)
-configurations=("grid" "grid_nlb" "ring" "ring_nlb" "linear")
+processors=(8 12 16 32 64 128)
+configurations=("grid" "grid_nlb" "ring" "ring_nlb")
 
 for config in "${configurations[@]}"; do
 	if [ "$config" == "linear" ]; then

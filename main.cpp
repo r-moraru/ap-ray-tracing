@@ -28,12 +28,18 @@ int main(int argc, char **argv) {
   auto centerMaterial = make_shared<Lambertian>(Pixel({0.1, 0.2, 0.5}));
   auto leftMaterial = make_shared<Metal>(Pixel({0.8, 0.8, 0.8}));
   auto rightMaterial = make_shared<Metal>(Pixel({0.8, 0.3, 0.2}));
+  auto frontMaterial = make_shared<Metal>(Pixel({0.8, 0.8, 0.8}));
+  auto upMaterial = make_shared<Metal>(Pixel({0.7, 0.7, 0.7}));
 
   world.add(
       make_shared<Sphere>(Point({0.0, -100.5, -1.0}), 100.0, groundMaterial));
   world.add(make_shared<Sphere>(Point({0.0, 0.0, -1.5}), 0.5, centerMaterial));
   world.add(make_shared<Sphere>(Point({-1.0, 0.0, -1.0}), 0.5, leftMaterial));
   world.add(make_shared<Sphere>(Point({1.0, 0.0, -1.0}), 0.5, rightMaterial));
+  world.add(make_shared<Sphere>(Point({0.0, 1.0, 0}), 0.4, upMaterial));
+  world.add(make_shared<Sphere>(Point({0.0, -0.25, 1}), 0.25, frontMaterial));
+  world.add(make_shared<Sphere>(Point({0.0, -0.20, -0.5}), 0.3, frontMaterial));
+  world.add(make_shared<Sphere>(Point({0.0, 0.60, -0.25}), 0.25, groundMaterial));
 
   Topology topology = GRID;
   bool loadBalanced = true;
