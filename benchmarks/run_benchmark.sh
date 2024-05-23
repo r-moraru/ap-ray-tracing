@@ -9,7 +9,7 @@ make
 
 echo "num_processors,run,topology,load_balanced,time" >$output_file
 
-processors=(8 12 16 32 64 128)
+processors=(1 2 4 8 12 16 32 64 128)
 configurations=("grid" "grid_nlb" "ring" "ring_nlb")
 
 for config in "${configurations[@]}"; do
